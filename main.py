@@ -11,3 +11,4 @@ with urlopen("https://ft1.ftp.sh/diziler.m3u") as r:
       fd.write(s)
 
 streams = streamClasses.rawStreamList('m3u/diziler.m3u')
+
