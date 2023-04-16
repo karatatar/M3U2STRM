@@ -1,4 +1,4 @@
 import streamClasses
 
-streams = streamClasses.rawStreamList('test.m3u')
+streams = streamClasses.rawStreamList('diziler.m3u')
 

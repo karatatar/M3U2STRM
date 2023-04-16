@@ -105,7 +105,7 @@ class TVEpisode(object):
     if self.resolution:
       filestring.append(self.resolution.strip())
     if self.seasonnumber:
-      return ('tvshows/' + self.showtitle.strip().replace(':','-').replace('/','_').replace('*','_').replace('?','') + "/" + self.showtitle.strip().replace(':','-').replace('/','-').replace('*','_').replace('?','') + " - Season " + str(self.seasonnumber.strip()) + '/' + ' - '.join(filestring).replace(':','-').replace('*','_') + ".strm")
+      return ('tvshows/' + self.showtitle.strip().replace(':','-').replace('/','_').replace('*','_').replace('?','') + "/" + "Season " + str(self.seasonnumber.strip()) + '/' + ' - '.join(filestring).replace(':','-').replace('*','_') + ".strm")
     else:
       return ('tvshows/' + self.showtitle.strip().replace(':','-').replace('/','_').replace('*','_').replace('?','') +"/" +' - '.join(filestring).replace(':','-').replace('*','_') + ".strm")
   
@@ -241,9 +241,9 @@ class rawStreamList(object):
       if streamtype == 'live':
         return 'live'
     
-    # tvshowmatch = tools.sxxExxMatch(streaminfo)
-    # if tvshowmatch:
-    #   return 'vodTV'
+    tvshowmatch = tools.sxxExxMatch(streaminfo)
+    if tvshowmatch:
+       return 'vodTV'
     
     airdatematch = tools.airDateMatch(streaminfo)
     if airdatematch:
