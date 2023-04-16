@@ -3,6 +3,8 @@ import logger
 import os
 import re
 import tools
+
+
 class Movie(object):
   '''A class used to construct the Movie filename.
 
@@ -123,6 +125,66 @@ class TVEpisode(object):
         os.mkdir(seasondir)
     tools.makeStrm(filename, self.url)
 
+class LiveStream(object):
+  '''A class used to construct the TV filename.
+
+  :param showtitle: The Title of the TVshow (required)
+  :type showtitle: str.
+  :param url: The url to the location of the stream (required)
+  :type url: str.
+  :param seasonnumber: The season number of this episode. (optional)
+  :type seasonnumber: str
+  :param episodenumber: The episode number of this episode. (optional)
+  :type episodenumber: str
+  :param resolution: The resolution of the stream (optional)
+  :type resolution: str.
+  :param year: The Year the show was made (optional)
+  :type year: str.
+  :param episodename: The name of the episode. (optional)
+  :type episodename: str
+  :param airdate: The date the show aired, for daily or nightly shows like news (optional)
+  :type airdate: str
+  '''
+  def __init__(self, showtitle, url, resolution=None, folder=None, language=None):
+    self.showtitle = showtitle
+    self.url = url
+    self.resolution = resolution
+    self.language = language
+    self.folder = folder
+
+  def getFilename(self):
+    '''Getter to get the filename for the stream file
+    
+    :returns: the fully constructed filename with type directory ea. "tvshows/Star Trek the Next Generation - Season 02/Star Trek the Next Generation - S02E07 - The Borgs kill Picard - 1080p.strm"
+    :rtype: str
+    '''
+    filestring = [self.showtitle.replace(':','-').replace('*','_').replace('/','_').replace('?','')]
+    if self.folder:
+      filestring.append(self.folder.strip())    
+    if self.language:
+      filestring.append(self.language.strip())
+    if self.resolution:
+      filestring.append(self.resolution.strip())
+    return ('tv/'
+      + self.folder.strip().replace(':','-').replace('/','_').replace('*','_').replace('?','').replace('|','').replace('  ',' ') + "/"
+      + self.showtitle.strip().replace(':','-').replace('/','_').replace('*','_').replace('?','') +"/"
+      +' - '.join(filestring).replace(':','-').replace('*','_').replace('/','_') + ".strm")
+
+  def makeStream(self):
+    filename = self.getFilename()
+    directories = filename.split('/')
+    directories = directories[:-1]
+    typedir = directories[0]
+    folder = '/'.join([typedir, directories[1]])
+    showdir = '/'.join([folder, directories[2]])
+    if not os.path.exists(typedir):
+      os.mkdir(typedir)
+    if not os.path.exists(folder):
+      os.mkdir(folder)
+    if not os.path.exists(showdir):
+      os.mkdir(showdir)
+    tools.makeStrm(filename, self.url)
+
 class rawStreamList(object):
   def __init__(self, filename):
     self.log = logger.Logger(__file__, log_level=logger.LogLevel.DEBUG)
@@ -179,9 +241,9 @@ class rawStreamList(object):
       if streamtype == 'live':
         return 'live'
     
-    tvshowmatch = tools.sxxExxMatch(streaminfo)
-    if tvshowmatch:
-      return 'vodTV'
+    # tvshowmatch = tools.sxxExxMatch(streaminfo)
+    # if tvshowmatch:
+    #   return 'vodTV'
     
     airdatematch = tools.airDateMatch(streaminfo)
     if airdatematch:
@@ -240,8 +302,12 @@ class rawStreamList(object):
     episode.makeStream()
   
   def parseLiveStream(self, streaminfo, streamURL):
-    #print(streaminfo, "LIVETV")
-    pass
+    title = tools.getResult(tools.tvgNameMatch(streaminfo))
+    folder = tools.getResult(tools.tvgGroupMatch(streaminfo))
+    livestream = LiveStream(title, streamURL, folder=folder)
+    print(livestream.__dict__, "LIVESTREAM")
+    print(livestream.getFilename())
+    livestream.makeStream()
 
   def parseVodMovie(self, streaminfo, streamURL):
     #todo: add language parsing for |LA| and strip it
@@ -261,9 +327,3 @@ class rawStreamList(object):
     print(moviestream.__dict__, "MOVIE")
     print(moviestream.getFilename())
     moviestream.makeStream()
-
-
-
-
-
-
